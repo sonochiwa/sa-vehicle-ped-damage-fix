@@ -52,13 +52,12 @@
 #include <iterator>
 
 #include "config.h"
-#include "game.h"
+#include "addresses.h"
 #include "log.h"
 #include "patch.h"
+#include "version.h"
 
 namespace {
-
-constexpr char kVersion[] = "1.0.0";
 
 constexpr DWORD kWatchPollMs = 1000;
 
@@ -278,7 +277,7 @@ DWORD WINAPI PluginThread(LPVOID parameter) {
     if (g_settings.log)
         logging::Enable(module);
 
-    logging::Write("Vehicle Ped Damage Fix v%s", kVersion);
+    logging::Write(PLUGIN_NAME " v" PLUGIN_VERSION);
 
     if (!Install())
         return 0;

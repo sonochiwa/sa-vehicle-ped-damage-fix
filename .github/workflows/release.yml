@@ -1,10 +1,9 @@
-name: Verified release
+name: Release
 
 on:
   push:
     tags:
-      - "v*"
-      - "[0-9]*"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   contents: write
@@ -30,9 +29,6 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}" -replace '^v', ''
-          if ($version -notmatch '^\d+\.\d+\.\d+$') {
-              throw "Release tag must contain a semantic version."
-          }
 
           $iniHeader = (Get-Content Config\VehiclePedDamageFix.ini -TotalCount 1)
           if ($iniHeader -ne "# Vehicle Ped Damage Fix v$version") {
@@ -52,20 +48,17 @@ jobs:
           "$hash  $archiveName" | Set-Content -LiteralPath $checksum -Encoding ascii
 
           $changelog = Get-Content CHANGELOG.md -Raw
-          # The optional " - <date>" after the heading must stay on the heading
+          # The optional suffix after the heading must stay on the heading
           # line: under (?s) a \s+ there crosses the blank line and swallows the
           # first bullet of the section.
-          $pattern = "(?ms)^##[ \t]+v?$([regex]::Escape($version))(?:[ \t]+-[^\r\n]+)?[ \t]*\r?\n(?<body>.*?)(?=^##[ \t]|\z)"
+          $pattern = "(?ms)^##[ \t]+$([regex]::Escape($version))(?:[ \t]+-[^\r\n]+)?[ \t]*\r?\n(?<body>.*?)(?=^##[ \t]|\z)"
           $match = [regex]::Match($changelog, $pattern)
           if (-not $match.Success) {
               throw "CHANGELOG.md has no section for $version."
           }
-          $notes = @(
-              $match.Groups['body'].Value.Trim()
-          ) -join [Environment]::NewLine
           [IO.File]::WriteAllText(
               (Join-Path build release-notes.md),
-              $notes,
+              $match.Groups['body'].Value.Trim(),
               [Text.UTF8Encoding]::new($false)
           )
 

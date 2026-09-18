@@ -54,7 +54,8 @@ physics and its tasks are all left exactly as the game set them.
 
 ## Requirements
 
-- GTA San Andreas 1.0 US, or a SA-MP installation based on it.
+- GTA San Andreas 1.0 US (Compact or Hoodlum executable), or a SA-MP
+  installation based on it.
 - An ASI loader, such as Silent's ASI Loader or Ultimate ASI Loader.
 
 The plugin compares the bytes at every address it depends on with the bytes the
@@ -94,26 +95,39 @@ deleting `VehiclePedDamageFix.asi` is how you turn it off.
 
 ## Building
 
-1. Open `VehiclePedDamageFix.sln` in Visual Studio 2022 or newer.
-2. Select `Release|Win32`.
-3. Build the solution.
+Visual Studio 2022 (v143), `Release|Win32`. Open `VehiclePedDamageFix.sln` or
+run:
 
-The build produces `build\VehiclePedDamageFix.asi` and copies the canonical
-configuration to `build\VehiclePedDamageFix.ini`.
-`Config\VehiclePedDamageFix.ini` is also compiled into the plugin as an `RCDATA`
-resource, so the INI the plugin writes when the file is missing is by
-construction byte for byte identical to the canonical one.
+```powershell
+msbuild VehiclePedDamageFix.sln /t:Rebuild /p:Configuration=Release /p:Platform=Win32
+```
+
+The plugin is written to `build\VehiclePedDamageFix.asi` next to a copy of the
+INI. `Config\VehiclePedDamageFix.ini` is compiled into the plugin as an
+`RCDATA` resource, so the INI written when the file is missing is byte for
+byte the canonical one.
 
 ## Repository Layout
 
 ```text
-Config\                 Canonical default configuration
-src\                    Plugin source and Visual Studio project
-CHANGELOG.md            Release history
-LICENSE                 MIT License
-README.md               Project documentation
-ROADMAP.md              Validation status and planned work
-VehiclePedDamageFix.sln Visual Studio solution
+VehiclePedDamageFix.sln
+README.md
+CHANGELOG.md
+ROADMAP.md                      Validation status and planned work
+LICENSE
+.github\workflows\release.yml   Tagged release build, checksum and attestation
+Config\
+  VehiclePedDamageFix.ini       Canonical configuration, embedded as RCDATA
+src\
+  VehiclePedDamageFix.cpp       DllMain, patch installation and the watcher
+  VehiclePedDamageFix.rc        Version resource and the embedded INI
+  VehiclePedDamageFix.vcxproj
+  addresses.h                   Game addresses, offsets and expected bytes
+  config.cpp / config.h         INI creation and loading
+  log.cpp / log.h               Optional log file
+  patch.cpp / patch.h           Readable-memory checks and protected writes
+  resource.h
+  version.h
 ```
 
 ## How It Works
@@ -273,35 +287,20 @@ Patched function:
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for what has been validated in game and what has
-not.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
+Planned and unvalidated work is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Release Integrity
 
-Tagged release archives are built from the tagged source by GitHub Actions.
-Each release includes a SHA-256 checksum and a signed GitHub build-provenance
-attestation.
-
-Verify the checksum in PowerShell:
-
-```powershell
-(Get-FileHash .\VehiclePedDamageFix-v1.0.0.zip -Algorithm SHA256).Hash.ToLower()
-Get-Content .\VehiclePedDamageFix-v1.0.0.zip.sha256
-```
-
-Verify that GitHub produced the archive from this repository:
+Tagged releases are built by GitHub Actions from the tagged commit. Each
+release carries `VehiclePedDamageFix-vX.Y.Z.zip`, its SHA-256 in
+`VehiclePedDamageFix-vX.Y.Z.zip.sha256` and a signed build-provenance attestation,
+which proves that the archive was produced by this repository's workflow
+from that revision. It does not prove the code is bug-free.
 
 ```text
-gh attestation verify VehiclePedDamageFix-v1.0.0.zip -R sonochiwa/sa-vehicle-ped-damage-fix
+gh attestation verify VehiclePedDamageFix-vX.Y.Z.zip -R sonochiwa/sa-vehicle-ped-damage-fix
 ```
-
-The attestation verifies artifact provenance and integrity. It is not a
-guarantee that the source is bug-free or safe.
 
 ## License
 
-Vehicle Ped Damage Fix is released under the [MIT License](LICENSE).
+MIT. See [LICENSE](LICENSE).
