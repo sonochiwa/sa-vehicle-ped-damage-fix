@@ -47,36 +47,6 @@ jobs:
           New-Item -ItemType Directory -Path $stage -Force | Out-Null
           Copy-Item build\VehiclePedDamageFix.asi, build\VehiclePedDamageFix.ini -Destination $stage
 
-          $readme = @(
-              "Vehicle Ped Damage Fix v$version"
-              "Created by sonochiwa"
-              ""
-              "Makes a GTA San Andreas ped shootable while it is getting into or out"
-              "of a vehicle. It fixes damage to the ped, not to the car. In the stock"
-              "game the collision is switched off from the moment the ped reaches the"
-              "door until it is seated, and again until it has been put down on the"
-              "way out, so bullets pass through somebody standing beside the car."
-              ""
-              "Installation"
-              ""
-              "  1. Extract VehiclePedDamageFix.asi and VehiclePedDamageFix.ini into"
-              "     the GTA San Andreas directory or into its scripts directory."
-              "  2. Start the game."
-              ""
-              "Requires GTA San Andreas 1.0 US (or a SA-MP installation based on it)"
-              "and an ASI loader. Any other executable version is left untouched."
-              ""
-              "Set log=1 in VehiclePedDamageFix.ini to have the plugin record what it"
-              "patched in VehiclePedDamageFix.log."
-              ""
-              "Source code: https://github.com/sonochiwa/sa-vehicle-ped-damage-fix"
-          ) -join [Environment]::NewLine
-          [IO.File]::WriteAllText(
-              (Join-Path $stage README.txt),
-              $readme,
-              [Text.UTF8Encoding]::new($false)
-          )
-
           Compress-Archive -Path "$stage\*" -DestinationPath $archive -Force
           $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archive).Hash.ToLowerInvariant()
           "$hash  $archiveName" | Set-Content -LiteralPath $checksum -Encoding ascii
