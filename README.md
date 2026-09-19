@@ -75,7 +75,7 @@ To uninstall the plugin, delete both files.
 The complete default `VehiclePedDamageFix.ini` is:
 
 ```ini
-# Vehicle Ped Damage Fix v1.0.0
+# Vehicle Ped Damage Fix v1.0.1
 # Created by sonochiwa
 # Source code: https://github.com/sonochiwa/sa-vehicle-ped-damage-fix
 

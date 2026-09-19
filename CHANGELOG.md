@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Added version information to the plugin file.
+- Removed `README.txt` from the release archive; the repository README is the
+  documentation.
+
 ## 1.0.0
 
 - Added the fix for a ped being unhittable while it is at a vehicle. The game
