@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- Added `README.txt` to the release archive.
+
 ## 1.1.0
 
 - Removed the INI and the log; the plugin has nothing to configure.

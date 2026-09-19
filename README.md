@@ -25,7 +25,7 @@ else.
   installation based on it.
 - An ASI loader, such as Silent's ASI Loader or Ultimate ASI Loader.
 
-Other executable versions are left untouched.
+Other executables are left untouched.
 
 ## Installation
 
