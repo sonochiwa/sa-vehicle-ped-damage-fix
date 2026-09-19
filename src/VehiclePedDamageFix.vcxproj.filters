@@ -2,14 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="VehiclePedDamageFix.cpp" />
-    <ClCompile Include="config.cpp" />
-    <ClCompile Include="log.cpp" />
     <ClCompile Include="patch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="addresses.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="log.h" />
     <ClInclude Include="patch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="version.h" />
@@ -22,7 +18,6 @@
     <None Include="..\CHANGELOG.md" />
     <None Include="..\LICENSE" />
     <None Include="..\README.md" />
-    <None Include="..\Config\VehiclePedDamageFix.ini" />
     <None Include="..\ROADMAP.md" />
   </ItemGroup>
 </Project>

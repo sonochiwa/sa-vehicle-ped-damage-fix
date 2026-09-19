@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -51,18 +51,17 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>
 
@@ -73,11 +72,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -85,25 +85,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>
 
-
-
-
-
   <ItemGroup>
     <ClCompile Include="VehiclePedDamageFix.cpp" />
-    <ClCompile Include="config.cpp" />
-    <ClCompile Include="log.cpp" />
     <ClCompile Include="patch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="addresses.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="log.h" />
     <ClInclude Include="patch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="version.h" />
@@ -116,14 +106,7 @@
     <None Include="..\CHANGELOG.md" />
     <None Include="..\LICENSE" />
     <None Include="..\README.md" />
-    <None Include="..\Config\VehiclePedDamageFix.ini" />
     <None Include="..\ROADMAP.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-
-  <Target Name="CopyReleaseConfig" AfterTargets="Build"
-          Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Copy SourceFiles="$(SolutionDir)Config\VehiclePedDamageFix.ini"
-          DestinationFolder="$(OutDir)" />
-  </Target>
 </Project>

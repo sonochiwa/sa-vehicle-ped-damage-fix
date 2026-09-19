@@ -48,9 +48,6 @@ physics and its tasks are all left exactly as the game set them.
 - Verifies the 28 instruction bytes it replaces and four byte sequences that
   pin the task manager layout before writing anything, and refuses to patch any
   other executable.
-- Creates the default INI automatically when it is missing.
-- Optional log file recording what was patched, whether another modification
-  later overwrote it, and whether the fix has taken effect in game.
 
 ## Requirements
 
@@ -64,34 +61,11 @@ untouched.
 
 ## Installation
 
-1. Extract `VehiclePedDamageFix.asi` and `VehiclePedDamageFix.ini` into the GTA San
-   Andreas directory or into its `scripts` directory.
+1. Extract `VehiclePedDamageFix.asi` into the GTA San Andreas directory or its
+   `scripts` directory.
 2. Start the game.
 
-To uninstall the plugin, delete both files.
-
-## Configuration
-
-The complete default `VehiclePedDamageFix.ini` is:
-
-```ini
-# Vehicle Ped Damage Fix v1.0.1
-# Created by sonochiwa
-# Source code: https://github.com/sonochiwa/sa-vehicle-ped-damage-fix
-
-[general]
-log=0
-```
-
-| Setting | Default | Meaning |
-| --- | ---: | --- |
-| `general.log` | `0` | Set to `1` to write `VehiclePedDamageFix.log` next to the plugin with the result of the patch, a note if another modification later overwrites the patch site, and a note the first time a ped at a vehicle is included in a weapon line test. |
-
-The setting is read once when the game starts. The plugin has no hotkey; edit
-the INI and restart the game to change it.
-
-There is no master switch. The plugin does nothing but apply this one fix, so
-deleting `VehiclePedDamageFix.asi` is how you turn it off.
+There is nothing to configure. Remove the file to uninstall the fix.
 
 ## Building
 
@@ -102,10 +76,7 @@ run:
 msbuild VehiclePedDamageFix.sln /t:Rebuild /p:Configuration=Release /p:Platform=Win32
 ```
 
-The plugin is written to `build\VehiclePedDamageFix.asi` next to a copy of the
-INI. `Config\VehiclePedDamageFix.ini` is compiled into the plugin as an
-`RCDATA` resource, so the INI written when the file is missing is byte for
-byte the canonical one.
+The plugin is written to `build\VehiclePedDamageFix.asi`.
 
 ## Repository Layout
 
@@ -116,15 +87,11 @@ CHANGELOG.md
 ROADMAP.md                      Validation status and planned work
 LICENSE
 .github\workflows\release.yml   Tagged release build, checksum and attestation
-Config\
-  VehiclePedDamageFix.ini       Canonical configuration, embedded as RCDATA
 src\
-  VehiclePedDamageFix.cpp       DllMain, patch installation and the watcher
-  VehiclePedDamageFix.rc        Version resource and the embedded INI
+  VehiclePedDamageFix.cpp       DllMain and the patch
+  VehiclePedDamageFix.rc        Version resource
   VehiclePedDamageFix.vcxproj
   addresses.h                   Game addresses, offsets and expected bytes
-  config.cpp / config.h         INI creation and loading
-  log.cpp / log.h               Optional log file
   patch.cpp / patch.h           Readable-memory checks and protected writes
   resource.h
   version.h

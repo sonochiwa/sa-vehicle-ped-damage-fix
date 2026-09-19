@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+- Removed the INI and the log; the plugin has nothing to configure.
+
 ## 1.0.1
 
 - Added version information to the plugin file.

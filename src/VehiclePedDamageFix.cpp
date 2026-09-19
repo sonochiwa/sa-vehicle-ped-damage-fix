@@ -45,32 +45,15 @@
 // to an AI line of sight query or to camera collision. The ped's collision
 // flag, its physics and its tasks are all left exactly as the game set them.
 
+#include "addresses.h"
+#include "patch.h"
+
 #include <windows.h>
 
 #include <cstdint>
 #include <cstring>
-#include <iterator>
-
-#include "config.h"
-#include "addresses.h"
-#include "log.h"
-#include "patch.h"
-#include "version.h"
 
 namespace {
-
-constexpr DWORD kWatchPollMs = 1000;
-
-// The bytes the plugin wrote over the two conditions, kept so that the watcher
-// can tell when another modification has overwritten them.
-uint8_t g_installed[game::kBikerCheckSize] = {};
-
-// Incremented by the game thread whenever the fix includes a ped that is
-// getting in or out of a vehicle. The watcher thread reports the first one, so
-// no file is ever opened from inside a line of sight test.
-volatile LONG g_atVehicleHits = 0;
-
-config::Settings g_settings;
 
 int32_t GetTaskType(const void* task) {
     const auto vtable = *reinterpret_cast<const uintptr_t*>(task);
@@ -157,11 +140,7 @@ extern "C" bool __fastcall PedTakesPartInLineTest(void* pedPointer) {
     if ((fourthFlags & game::kPedTestForShot) != 0)
         return true;
 
-    if (!IsAtVehicle(ped))
-        return false;
-
-    InterlockedIncrement(&g_atVehicleHits);
-    return true;
+    return IsAtVehicle(ped);
 }
 
 namespace {
@@ -175,19 +154,12 @@ namespace {
 //   test al,al
 //   je   0056727E                where both original conditions jumped
 bool Install() {
-    if (!patch::BytesEqual(game::kBikerCheck, game::kBikerCheckOriginal)) {
-        logging::Write("unexpected bytes at %08X, nothing was patched",
-                       static_cast<unsigned>(game::kBikerCheck));
+    if (!patch::BytesEqual(game::kBikerCheck, game::kBikerCheckOriginal))
         return false;
-    }
 
     for (const auto& anchor : game::kTaskLayoutAnchors) {
-        if (!patch::BytesEqual(anchor.address, anchor.bytes, anchor.size)) {
-            logging::Write("unexpected bytes at %08X, the task manager layout "
-                           "could not be confirmed, nothing was patched",
-                           static_cast<unsigned>(anchor.address));
+        if (!patch::BytesEqual(anchor.address, anchor.bytes, anchor.size))
             return false;
-        }
     }
 
     uint8_t code[game::kBikerCheckSize];
@@ -215,79 +187,12 @@ bool Install() {
     std::memcpy(code + at, &jumpRelative, sizeof(jumpRelative));
     at += sizeof(jumpRelative);
 
-    if (!patch::WriteMemory(game::kBikerCheck, code, sizeof(code))) {
-        logging::Write("could not write to %08X, nothing was patched",
-                       static_cast<unsigned>(game::kBikerCheck));
-        return false;
-    }
-
-    std::memcpy(g_installed, code, sizeof(code));
-
-    logging::Write("patched CWorld::ProcessLineOfSightSectorList: "
-                   "%u bytes at %08X, %u of them nop padding",
-                   static_cast<unsigned>(sizeof(code)),
-                   static_cast<unsigned>(game::kBikerCheck),
-                   static_cast<unsigned>(sizeof(code) - at));
-    logging::Write("  ped predicate at %08X, skip target %08X, %u tasks covered",
-                   static_cast<unsigned>(target),
-                   static_cast<unsigned>(game::kSkipPed),
-                   static_cast<unsigned>(std::size(game::kAtVehicleTasks)));
-    return true;
+    return patch::WriteMemory(game::kBikerCheck, code, sizeof(code));
 }
 
-// Another modification can rewrite the same instructions afterwards, which
-// would undo the fix without leaving any trace. The site is re-read so that
-// this is reported once rather than silently ignored. Never returns.
-[[noreturn]] void Watch() {
-    bool siteReported = false;
-    bool hitReported = false;
-
-    for (;;) {
-        Sleep(kWatchPollMs);
-
-        if (!siteReported &&
-            !patch::BytesEqual(game::kBikerCheck, g_installed,
-                               sizeof(g_installed))) {
-            logging::Write("the patch site at %08X no longer holds the "
-                           "plugin's bytes, another modification has "
-                           "overwritten it",
-                           static_cast<unsigned>(game::kBikerCheck));
-            siteReported = true;
-        }
-
-        if (!hitReported &&
-            InterlockedCompareExchange(&g_atVehicleHits, 0, 0) != 0) {
-            logging::Write("a ped at a vehicle was included in a weapon line "
-                           "test for the first time");
-            hitReported = true;
-        }
-    }
-}
-
-DWORD WINAPI PluginThread(LPVOID parameter) {
-    const auto module = static_cast<HMODULE>(parameter);
-
-    char path[MAX_PATH] = {};
-    if (!config::GetPath(module, path))
-        return 0;
-
-    config::CreateDefault(module, path);
-    g_settings = config::Load(path);
-
-    if (g_settings.log)
-        logging::Enable(module);
-
-    logging::Write(PLUGIN_NAME " v" PLUGIN_VERSION);
-
-    if (!Install())
-        return 0;
-
-    // Nothing else is written from here, and with the log off there is nothing
-    // left to report.
-    if (!g_settings.log)
-        return 0;
-
-    Watch();
+DWORD WINAPI PluginThread(LPVOID) {
+    Install();
+    return 0;
 }
 
 }  // namespace
@@ -296,7 +201,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID) {
     if (reason == DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(instance);
         const HANDLE thread =
-            CreateThread(nullptr, 0, PluginThread, instance, 0, nullptr);
+            CreateThread(nullptr, 0, PluginThread, nullptr, 0, nullptr);
         if (thread)
             CloseHandle(thread);
     }

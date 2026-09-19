@@ -80,9 +80,8 @@ They differ outside the patched code and produced identical results:
   and `edi` and does not touch `ebp`, so the registers the patched loop keeps
   live across the call, in particular `edi` holding the ped and `ebp` holding
   zero, are safe.
-- `Release|Win32` rebuilds cleanly at warning level 4 and produces an x86 DLL
-  whose embedded default INI is byte for byte identical to
-  `Config\VehiclePedDamageFix.ini`.
+- `Release|Win32` rebuilds cleanly with warnings as errors and produces an
+  x86 DLL.
 
 ## Implemented, validation pending
 
@@ -130,8 +129,7 @@ Nothing in this list has been observed in a running game yet:
   rather than a line, so a ped at a vehicle stays immune to explosions, fire
   and melee exactly as in the stock game. Changing those means changing
   decisions the game makes deliberately, not a missed one.
-- Restoring the patch after another modification has overwritten the site. The
-  plugin reports it in the log and leaves it alone.
+- Restoring the patch after another modification has overwritten the site.
 - Executable versions other than 1.0 US. The plugin refuses to patch them
   rather than guessing at different addresses.
 - A runtime toggle hotkey. Applying the patch is a one-way operation in this
@@ -145,5 +143,5 @@ reasoned about. Before the fix can be called fully validated:
 - Everything under "Implemented, validation pending" observed in game, in
   single player and on a SA-MP server.
 - No new warnings in a clean `Release|Win32` rebuild.
-- Version strings in `Config\VehiclePedDamageFix.ini`, `README.md`,
-  `CHANGELOG.md` and the release archive name in agreement.
+- Version strings in `srcersion.h`, `CHANGELOG.md` and the release
+  archive name in agreement.
